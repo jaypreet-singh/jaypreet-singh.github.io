@@ -2,10 +2,10 @@
 var SITE = {
   email: "s.jaypreet@gmail.com",
   linkedin: "https://www.linkedin.com/in/jaypreet-singh/",
-  github: "https://github.com/jaypreet123"
+  github: "https://github.com/jaypreet-singh"
 };
 
-/* Organization logos (files in assets/logos/). */
+/* Organization logos */
 var LOGOS = {
   nstarx:  { name: "NStarX", src: "assets/logos/nstarx.png" },
   populus: { name: "Populus Health Technologies", src: "assets/logos/populus-health.png" },
@@ -145,15 +145,38 @@ var ICON_OPEN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stro
     var fail = function () { status.textContent = "Couldn't copy automatically. My email is " + SITE.email; };
     try { navigator.clipboard.writeText(SITE.email).then(done, fail); } catch (e) { fail(); }
   });
-  document.getElementById("contact-form").addEventListener("submit", function (e) {
+  /* Contact form: sends straight to your inbox through FormSubmit (free, no account).
+     The first message ever sent triggers a one-time "Activate form" email to SITE.email. */
+  var form = document.getElementById("contact-form");
+  var formStatus = document.getElementById("form-status");
+  var submitBtn = document.getElementById("cf-submit");
+  function mailtoFallback(name, from, msg) {
+    var subject = "Portfolio inquiry from " + (name || "a visitor");
+    var body = msg + "\n\n— " + name + (from ? "\n" + from : "");
+    window.location.href = "mailto:" + SITE.email + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
+    formStatus.textContent = "Couldn't send from the page, so your email app was opened instead. You can also email " + SITE.email + ".";
+  }
+  form.addEventListener("submit", function (e) {
     e.preventDefault();
     var name = document.getElementById("cf-name").value.trim();
     var from = document.getElementById("cf-email").value.trim();
     var msg = document.getElementById("cf-message").value.trim();
-    var subject = "Portfolio inquiry from " + (name || "a visitor");
-    var body = msg + "\n\n— " + name + (from ? "\n" + from : "");
-    window.location.href = "mailto:" + SITE.email + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
-    document.getElementById("form-status").textContent = "Your email app should open with the message ready to send. If it doesn't, email " + SITE.email + " directly.";
+    if (document.getElementById("cf-honey").value) return; // spam bot
+    submitBtn.disabled = true; submitBtn.querySelector("span").textContent = "Sending…";
+    formStatus.textContent = "";
+    fetch("https://formsubmit.co/ajax/" + SITE.email, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify({ name: name, email: from, message: msg, _subject: "Portfolio message from " + (name || "a visitor"), _template: "table", _replyto: from })
+    }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+      .then(function (res) {
+        if (res.ok && String(res.d.success) === "true") {
+          form.reset();
+          formStatus.textContent = "Thanks, " + (name.split(" ")[0] || "there") + "! Your message was sent. I'll reply to " + from + " soon.";
+        } else { mailtoFallback(name, from, msg); }
+      })
+      .catch(function () { mailtoFallback(name, from, msg); })
+      .then(function () { submitBtn.disabled = false; submitBtn.querySelector("span").textContent = "Send message"; });
   });
   document.getElementById("year").textContent = new Date().getFullYear();
 })();

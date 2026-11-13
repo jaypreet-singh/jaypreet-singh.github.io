@@ -384,3 +384,5 @@ footer a:hover { color: var(--accent); }
 
 .hero-skills { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; margin: 14px 0 0; padding: 0; max-width: 34em; }
 .hero-skills li { font-family: var(--font-mono); font-size: 12.5px; font-weight: 500; padding: 6px 12px; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--line)); background: var(--chip); color: var(--chip-text); white-space: nowrap; }
+
+.btn[disabled] { opacity: .65; cursor: progress; transform: none; }

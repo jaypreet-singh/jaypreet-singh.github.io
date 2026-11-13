@@ -12,11 +12,11 @@ Static portfolio website (HTML, CSS, JavaScript). No build step. Free to host on
 | `assets/` | Photo, résumés, logos, favicon, social-share image |
 
 ## Deploy free on GitHub Pages (5 minutes)
-1. Sign in at github.com (username: jaypreet123).
-2. Click **New repository** → name it exactly **`jaypreet123.github.io`** → **Public** → **Create repository**.
+1. Sign in at github.com (username: jaypreet-singh).
+2. Click **New repository** → name it exactly **`jaypreet-singh.github.io`** → **Public** → **Create repository**.
 3. Click **uploading an existing file** → drag in *everything inside this folder* (index.html, README.md and the `css`, `js`, `assets` folders) → **Commit changes**.
 4. Go to **Settings → Pages** → Source: **Deploy from a branch** → Branch: **main** / **(root)** → **Save**.
-5. In 1–2 minutes your site is live at **https://jaypreet123.github.io**
+5. In 1–2 minutes your site is live at **https://jaypreet-singh.github.io**
 
 ## Updating later
 - Open any file on GitHub → pencil icon → edit → **Commit changes**. The site updates in about a minute.
@@ -26,3 +26,8 @@ Static portfolio website (HTML, CSS, JavaScript). No build step. Free to host on
 
 ## Optional: custom domain
 Buy a domain (e.g. jaypreetsingh.com) → **Settings → Pages → Custom domain** → follow GitHub's DNS steps.
+
+## Contact form
+Messages are delivered to s.jaypreet@gmail.com through FormSubmit (free, no account).
+The **first** message ever sent triggers a one-time "Activate form" email from FormSubmit. Click **Activate Form** in that email once; after that every message arrives automatically.
+To change the address, edit `email` at the top of `js/main.js`.

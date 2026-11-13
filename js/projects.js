@@ -1,7 +1,7 @@
 /* =========================================================
    PROJECTS — edit this list to add or change projects.
    cat: any of "eng", "bi", "ml", "hw"
-   logo: one of the keys in LOGOS (js/main.js)
+   logo: one of the keys in LOGOS
    repo: GitHub link, or "" to hide the button
    ========================================================= */
 var PROJECTS = [
@@ -74,7 +74,7 @@ var PROJECTS = [
     summary: "Five-goal capstone for the Port Authority: what drives traffic, where toll violations happen, the busiest times, how 2025 congestion pricing shifted drivers, and forecasts to 2030.",
     metrics: [["−12.7%", "traffic after 2025 pricing (195.7M → 170.9M)"], ["5.7M", "toll violations in 2025"], ["R² 0.994", "busiest-times model accuracy"]],
     chips: ["Python", "Azure AutoML", "XGBoost", "LightGBM", "Prophet", "SARIMAX", "Looker Studio"],
-    repo: "https://github.com/jaypreet123/Port-Authority-NY-NJ-Bus-terminal-Project-2",
+    repo: "https://github.com/jaypreet-singh/Port-Authority-NY-NJ-Bus-terminal-Project-2",
     detail: {
       role: "Led data integration and automation, wrote the forecasting scripts, ran the Azure AutoML models and built the Looker Studio dashboard",
       team: "Team of 5 · BANL 6900 Business Analytics Capstone, University of New Haven",
@@ -110,7 +110,7 @@ var PROJECTS = [
     summary: "Forecasts of passengers per terminal and per bus carrier to size the Port Authority's temporary staging facilities, plus bridge traffic and post-COVID recovery.",
     metrics: [["188M", "bus passengers forecast, 2025–2030"], ["14", "bus carriers forecast individually"], ["2005–2024", "monthly training history"]],
     chips: ["SQL", "MS Access", "Python", "Prophet", "XGBoost", "K-Means", "Random Forest", "Power BI"],
-    repo: "https://github.com/jaypreet123/Port-Authority-NY-NJ-Bus-terminal-Project-1",
+    repo: "https://github.com/jaypreet-singh/Port-Authority-NY-NJ-Bus-terminal-Project-1",
     detail: {
       role: "Built the terminal forecasts (Prophet) and the per-carrier forecasts (XGBoost), plus the clustering and classification models",
       team: "Team of 5 · BANL 6430 Database Management for Business Analytics, University of New Haven",
@@ -170,7 +170,7 @@ var PROJECTS = [
     summary: "Interactive, business-ready Power BI reports on a star-schema model that blends SQL, Excel and cloud sources.",
     metrics: [],
     chips: ["Power BI", "DAX", "Power Query", "SQL", "Excel"],
-    repo: "https://github.com/jaypreet123/PowerBI-Projects",
+    repo: "https://github.com/jaypreet-singh/PowerBI-Projects",
     detail: {
       role: "Developer",
       context: "Coursework on building governed, decision-ready reports.",
@@ -189,7 +189,7 @@ var PROJECTS = [
     summary: "A Support Vector Machine that classifies breast cells as benign or malignant from 30 measured attributes, with live predictions for new patient data.",
     metrics: [["98%", "classification accuracy"], ["30", "features per sample"]],
     chips: ["Python", "Scikit-learn", "SVM", "Pandas", "Matplotlib", "Seaborn"],
-    repo: "https://github.com/jaypreet123/Breast-Cancer-Detection",
+    repo: "https://github.com/jaypreet-singh/Breast-Cancer-Detection",
     detail: {
       role: "Co-developer (team of 2) · B.E. thesis, Visvesvaraya Technological University",
       context: "Early detection improves survival. Machine learning can give fast, repeatable predictions that support doctors' scans and biopsies.",
@@ -212,7 +212,7 @@ var PROJECTS = [
     summary: "An automated hardware test that reads input voltage through NI DAQ hardware, runs the error analysis and generates the test report automatically.",
     metrics: [],
     chips: ["LabVIEW", "NI-DAQmx", "NI myDAQ", "Automation"],
-    repo: "https://github.com/jaypreet123/ATP-LabVIEW",
+    repo: "https://github.com/jaypreet-singh/ATP-LabVIEW",
     detail: {
       role: "Intern · guided by a Senior Application Engineer",
       context: "VI Solutions builds test, measurement and automation systems for defense, aerospace and education. Manual hardware tests were slow and error-prone.",
