@@ -56,7 +56,7 @@ var ICON_OPEN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stro
       (actions ? '<div class="actions">' + actions + "</div>" : "") + "</article>";
   }
   grid.innerHTML = PROJECTS.map(function (p) { return card(p, false); }).join("");
-  home.innerHTML = PROJECTS.filter(function (p) { return ["agentra", "pa-capstone", "npi"].indexOf(p.id) !== -1; })
+  home.innerHTML = PROJECTS.filter(function (p) { return ["agentra", "looker-suite", "pa-capstone"].indexOf(p.id) !== -1; })
     .map(function (p) { return card(p, true); }).join("");
 
   // filter counts
@@ -87,7 +87,7 @@ var ICON_OPEN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stro
       '<div class="case-meta"><span><b>My role:</b> ' + esc(d.role) + "</span>" + (d.team ? "<span><b>Team:</b> " + esc(d.team) + "</span>" : "") + "</div>" +
       "<section><h3>The problem</h3><p>" + esc(d.context) + "</p></section>" +
       "<section><h3>Data</h3>" + list(d.data) + "</section>" +
-      "<section><h3>What I built</h3>" + list(d.approach) + "</section>" +
+      "<section><h3>" + (d.team ? "Team approach &amp; my part" : "What I built") + "</h3>" + list(d.approach) + "</section>" +
       "<section><h3>Results &amp; impact</h3>" + list(d.results) + "</section>" +
       '<ul class="chips">' + p.chips.map(function (c) { return "<li>" + esc(c) + "</li>"; }).join("") + "</ul>" +
       (p.repo ? '<div><a class="btn btn-primary" href="' + p.repo + '" target="_blank" rel="noopener">' + ICON_GH + " View code on GitHub</a></div>" : "");

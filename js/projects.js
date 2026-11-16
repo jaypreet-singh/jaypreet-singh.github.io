@@ -1,6 +1,6 @@
 /* =========================================================
    PROJECTS — edit this list to add or change projects.
-   cat: any of "eng", "bi", "ml", "hw"
+   cat: any of "eng", "bi", "ml", "ops", "hw"
    logo: one of the keys in LOGOS
    repo: GitHub link, or "" to hide the button
    ========================================================= */
@@ -41,6 +41,38 @@ var PROJECTS = [
     }
   },
   {
+    id: "looker-suite",
+    cat: ["bi"],
+    logo: "populus",
+    org: "Populus Health Technologies",
+    when: "2021–2024",
+    title: "Client analytics suite in Looker",
+    summary: "The complete Looker analytics suite behind Populus's reporting: governed, executive-ready dashboards for 30+ clients and internal teams, built on LookML semantic models with client-level security.",
+    metrics: [["30+", "clients & internal teams served"], ["Weekly", "market analysis reports"]],
+    chips: ["Looker", "LookML", "Looker Studio", "MySQL", "BigQuery", "GA4", "RLS / RBAC", "HIPAA"],
+    repo: "",
+    detail: {
+      role: "Data Engineer: built and maintained the suite, its semantic models and its access controls",
+      context: "Pharma and life-science clients needed reliable reporting on their digital health campaigns, and each client's data had to stay private and HIPAA-compliant.",
+      data: [
+        "Campaign, web and operational data from MySQL, BigQuery and Google Analytics 4",
+        "Reporting-ready tables built by automated ETL and bulk extraction workflows"
+      ],
+      approach: [
+        "Built LookML semantic models and custom fields so every dashboard used the same governed definitions",
+        "Applied row-level security to isolate data by client, with RBAC and a systematic rollout to users and groups",
+        "Designed executive-ready dashboards and reports, and kept them updated as business needs changed",
+        "Produced weekly statistical market analysis reports and ad-hoc analyses for operations and growth",
+        "Ran QA testing on reports before release"
+      ],
+      results: [
+        "One governed reporting suite used by 30+ clients and internal teams",
+        "HIPAA-compliant handling of sensitive data across all reporting datasets",
+        "Less manual work and more accurate recurring reports through automated extraction"
+      ]
+    }
+  },
+  {
     id: "npi",
     cat: ["eng"],
     logo: "populus",
@@ -65,6 +97,34 @@ var PROJECTS = [
     }
   },
   {
+    id: "campaign-ops",
+    cat: ["ops"],
+    logo: "populus",
+    org: "Populus Health Technologies",
+    when: "2021–2024",
+    title: "Digital health campaign setup & QA",
+    summary: "Technical launch support for pharma digital health campaigns: creative setup, measurement-vendor integrations, test pages and QA so campaigns delivered and tracked correctly.",
+    metrics: [["100+", "campaign test pages built"], ["3", "measurement vendors integrated"]],
+    chips: ["HTML / CSS", "JavaScript", "Node.js", "Bootstrap", "GitHub Pages", "DoubleVerify", "Crossix", "IQVIA"],
+    repo: "",
+    detail: {
+      role: "Technical and operational support for campaign launches (IT Intern, then Data Engineer)",
+      context: "Each launch for a life-science brand needed creatives that rendered correctly, tracking that reported correctly to third-party measurement vendors, and a way for clients to review everything before going live.",
+      data: ["Site-served HTML and video creatives", "Campaign pacing and delivery data by partner", "Measurement integrations with DoubleVerify, Crossix and IQVIA"],
+      approach: [
+        "Set up site-served HTML and video creatives for new campaign launches",
+        "Integrated campaigns with measurement vendors DoubleVerify, Crossix and IQVIA",
+        "Built 100+ test pages in HTML, CSS and JavaScript (Node.js and Bootstrap early on), served on GitHub Pages for client QA and mid-campaign creative swaps",
+        "Tracked campaign pacing by partner to keep delivery on time and on budget",
+        "Troubleshot creative and tracking issues to keep delivery and measurement accurate"
+      ],
+      results: [
+        "A client-ready QA page for every launch and creative swap",
+        "Accurate delivery and tracking across measurement partners"
+      ]
+    }
+  },
+  {
     id: "pa-capstone",
     cat: ["ml", "bi"],
     logo: "panynj",
@@ -81,7 +141,7 @@ var PROJECTS = [
       context: "The Port Authority runs bridges, tunnels and the bus terminal used by millions. It wanted to improve traffic flow, reduce congestion, optimize toll operations and understand the impact of 2025 toll changes.",
       data: [
         "Port Authority traffic records for 8 facilities (about 90K–110K rows each), split by facility to stay inside CSV limits",
-        "Weather (5,263 daily records: precipitation, snow, temperature, wind), U.S. holidays and 2025 toll prices",
+        "Weather (5,263 daily records: precipitation, snow, temperature, wind), U.S. holidays, 2025 toll prices and facility speed data",
         "11 CSV files joined on date, with Python loops automating load, clean and merge for every facility"
       ],
       approach: [
@@ -89,6 +149,7 @@ var PROJECTS = [
         "Built one goal-specific dataset and script per question to keep the data manageable",
         "Azure AutoML: ElasticNet for usage drivers, Random Forest (cross-checked with XGBoost) for violation risk, a Voting Ensemble of XGBoost + LightGBM for busiest times (R² 0.994), and ARIMAX for time-series forecasting",
         "Replicated AutoML results in Python with scikit-learn, Prophet and SARIMAX",
+        "Explored drivers with correlation heatmaps before modeling, then forecast daily traffic through 2030",
         "Built the final Looker Studio dashboard for peak periods, seasonality and violations"
       ],
       results: [
@@ -96,7 +157,7 @@ var PROJECTS = [
         "5.7M toll violations in 2025, with monthly violation rates of 3.5%–4.7%, peaking in May at about 390K",
         "July is the busiest month (13.9M vehicles) and February the slowest; Thursdays and Fridays are the busiest days",
         "Forecasts show steady growth through 2030, with GWB Upper, GWB Lower and Goethals remaining the busiest facilities",
-        "Recommended EZPass-only peak lanes, more ALPR cameras at high-violation sites, seasonal staffing and a real-time operations dashboard"
+        "Insights to help manage congestion, plan staff schedules and time maintenance; recommended EZPass-only peak lanes, more ALPR cameras at high-violation sites and a real-time operations dashboard"
       ]
     }
   },
@@ -121,10 +182,11 @@ var PROJECTS = [
         "Date, carrier and facility joins (left joins to keep every passenger record)"
       ],
       approach: [
+        "Cleaned and joined the Access data with SQL and Python: median imputation, de-duplication and quarter features",
         "Prophet model per terminal to forecast monthly passengers from January 2025 to December 2030",
         "XGBoost model per carrier with weather features, tuned with GridSearchCV and time-series cross-validation",
         "K-Means to group carriers and facilities with similar demand patterns for shared scheduling",
-        "Random Forest to flag high-traffic months (top 25%) for staffing",
+        "Random Forest to flag high-traffic months (top 25%) and identify weather-driven traffic spikes",
         "Power BI dashboard comparing 2025–2030 projections and 2019 vs 2025 usage"
       ],
       results: [
@@ -132,7 +194,8 @@ var PROJECTS = [
         "GWB Bus Station: about 8M passengers over the same period; about 188M combined",
         "NJ Transit, Greyhound and Hudson Transit lead, with 16–18M passengers each",
         "George Washington Bridge forecast at 403.8M vehicles for 2025–2030, with summer peaks",
-        "GWB and Bayonne traffic is now above 2019 levels, while Holland Tunnel still lags"
+        "GWB and Bayonne traffic is now above 2019 levels, while Holland Tunnel still lags",
+        "Insights used to plan staffing, gate use and temporary staging facilities"
       ]
     }
   },
@@ -144,7 +207,7 @@ var PROJECTS = [
     when: "May–Aug 2025",
     title: "Enterprise BI platform benchmark",
     summary: "A scored evaluation of four BI platforms for a client's enterprise-wide rollout, including stress tests and a live-data prototype on Amazon Redshift.",
-    metrics: [["4", "BI platforms benchmarked"], ["4", "scoring criteria"]],
+    metrics: [["4", "BI platforms benchmarked"], ["Live", "Redshift dashboard prototype"]],
     chips: ["Amazon Redshift", "GA4", "Tableau", "Power BI", "Domo", "Qlik", "ML forecasting", "ARIMA"],
     repo: "",
     detail: {
@@ -172,8 +235,8 @@ var PROJECTS = [
     chips: ["Power BI", "DAX", "Power Query", "SQL", "Excel"],
     repo: "https://github.com/jaypreet-singh/PowerBI-Projects",
     detail: {
-      role: "Developer",
-      context: "Coursework on building governed, decision-ready reports.",
+      role: "Student developer",
+      context: "Graduate coursework on building decision-ready reports from several data sources.",
       data: ["SQL, Excel and cloud sources"],
       approach: ["Star-schema modeling for accurate drill-downs", "Complex DAX measures and advanced filters"],
       results: ["Interactive reports ready for business users"]
@@ -215,12 +278,12 @@ var PROJECTS = [
     repo: "https://github.com/jaypreet-singh/ATP-LabVIEW",
     detail: {
       role: "Intern · guided by a Senior Application Engineer",
-      context: "VI Solutions builds test, measurement and automation systems for defense, aerospace and education. Manual hardware tests were slow and error-prone.",
+      context: "VI Solutions builds test, measurement and automation systems for defense, aerospace and education. The goal was a faster, more accurate way to check a hardware source voltage and record the result.",
       data: ["Analog input and output signals captured with NI DAQmx and NI myDAQ"],
       approach: [
         "Built the LabVIEW block diagram and front panel for the test",
         "Calculated error and percentage deviation in an event structure",
-        "Automated report creation with date, time, tester name and results"
+        "Generated the test report automatically as a Word file, with date, time, name, title and results"
       ],
       results: ["One-click accuracy testing of a source voltage, with a saved report for every run"]
     }
