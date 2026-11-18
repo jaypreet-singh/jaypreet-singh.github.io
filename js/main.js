@@ -2,7 +2,8 @@
 var SITE = {
   email: "s.jaypreet@gmail.com",
   linkedin: "https://www.linkedin.com/in/jaypreet-singh/",
-  github: "https://github.com/jaypreet-singh"
+  github: "https://github.com/jaypreet-singh",
+  aiEndpoint: "https://jaypreet-portfolio-ai.s-jaypreet.workers.dev"   // optional: paste your Cloudflare Worker URL here to let the assistant answer any question (see AI-SETUP.md)
 };
 
 /* Organization logos */
@@ -94,6 +95,7 @@ var ICON_OPEN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stro
     if (typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", "");
     dlg.scrollTop = 0;
   }
+  window.openCase = open;
   document.addEventListener("click", function (e) {
     var t = e.target.closest("[data-open]");
     if (t) open(t.getAttribute("data-open"));

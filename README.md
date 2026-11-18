@@ -31,3 +31,11 @@ Buy a domain (e.g. jaypreetsingh.com) → **Settings → Pages → Custom domain
 Messages are delivered to s.jaypreet@gmail.com through FormSubmit (free, no account).
 The **first** message ever sent triggers a one-time "Activate form" email from FormSubmit. Click **Activate Form** in that email once; after that every message arrives automatically.
 To change the address, edit `email` at the top of `js/main.js`.
+
+## Interactive features (js/features.js)
+- **Ask-about-me assistant** (chat bubble): answers from the `KB` list and the skills list. Add or edit answers in `KB`.
+- **Job-match checker** (Skills page): skills you have are in `SKILLS_HAVE` (with proof links); common skills you don't list are in `SKILLS_GAP`. Learn a new tool? Move it from `SKILLS_GAP` to `SKILLS_HAVE`.
+- **Port Authority insights** (Projects page): figures are in `VIEWS`.
+- **Cmd/Ctrl + K search** (keyboard shortcut): pages, projects, résumés and quick actions.
+- **Optional AI mode**: see AI-SETUP.md (free Gemini + Cloudflare Worker).
+All run in the browser: free, no API keys, nothing sent anywhere.
