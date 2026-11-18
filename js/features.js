@@ -250,7 +250,9 @@ function ask(q) {
   var r = answer(q);
   var typing = document.createElement("div"); typing.className = "msg bot typing"; typing.innerHTML = "<i></i><i></i><i></i>"; chatLog.appendChild(typing); chatLog.scrollTop = chatLog.scrollHeight;
   function done(html) { typing.remove(); addMsg("bot", html); }
-  var useAI = SITE.aiEndpoint && (r.conf === "none" || r.conf === "weak");
+  // Open-ended questions get a real AI answer; quick factual lookups stay instant.
+  var openEnded = /\b(how|why|would|could|should|explain|describe|compare|comparison|difference|approach|handle|what is|what are|what's|walk me|example|examples|best way|tell me more|elaborate|summari[sz]e|think|advice|suggest|improve|design|optimi[sz]e|troubleshoot|fix|vs|versus)\b/i.test(q);
+  var useAI = SITE.aiEndpoint && (r.conf === "none" || r.conf === "weak" || openEnded);
   if (!useAI) {
     setTimeout(function () { done(r.a + (r.l ? "<div>" + linkHTML(r.l) + "</div>" : "")); }, 450);
     chatHistory.push({ role: "user", text: q }, { role: "model", text: r.a.replace(/<[^>]+>/g, "") });

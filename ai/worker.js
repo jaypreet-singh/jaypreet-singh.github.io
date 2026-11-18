@@ -10,7 +10,7 @@ const ALLOWED_ORIGINS = [
 ];
 // The Worker finds a working Gemini "Flash" model automatically (Google renames models over time).
 // To force a specific model, add a plain-text variable GEMINI_MODEL in Cloudflare settings.
-const PREFERRED = ["gemini-flash-latest", "gemini-flash-lite-latest"];
+const PREFERRED = ["gemini-flash-lite-latest", "gemini-flash-latest"];
 let cachedModel = null;
 let modelList = null;
 let cachedThink;
@@ -52,10 +52,20 @@ Rules:
 - For anything about Jaypreet, use ONLY the PROFILE below. Never invent employers, dates, numbers, tools, salary, visa status or personal details. If the profile doesn't say, reply that you don't have that detail and suggest emailing s.jaypreet@gmail.com.
 - Salary, visa/work authorization and interview scheduling: always direct them to s.jaypreet@gmail.com.
 - You may answer general data/analytics questions (e.g. "what is a star schema?") briefly from general knowledge, and connect them to Jaypreet's relevant work when it fits.
+- Keep a clear line between FACT and APPROACH. Only state something as what he did or does if it is in the PROFILE. For "how would he…" questions, describe a sound approach in conditional wording ("he would typically…", "a good approach is…"), then cite the real, related experience from the PROFILE as evidence. Never present a general best practice as something he has done.
+- Mention his email only when it's relevant (contact, salary, visa, scheduling, or a detail you don't have), not in every answer.
 - Refer to him in the third person ("he", "Jaypreet"). Be warm, concise and professional: at most about 120 words, plain sentences, use **bold** sparingly, no headings.
 - Politely decline unrelated requests (coding tasks, essays, etc.) and steer back to Jaypreet's experience.
 PROFILE:
 ${PROFILE}`;
+
+async function timedFetch(url, opts = {}, ms = 10000) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), ms);
+  try { return await fetch(url, { ...opts, signal: ctrl.signal }); }
+  catch (e) { return new Response(JSON.stringify({ error: String(e) }), { status: 504 }); }
+  finally { clearTimeout(timer); }
+}
 
 function cors(origin) {
   const ok = ALLOWED_ORIGINS.includes(origin);
@@ -74,6 +84,28 @@ export default {
   async fetch(request, env) {
     const origin = request.headers.get("Origin") || "";
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors(origin) });
+    const url = new URL(request.url);
+    if (request.method === "GET" && url.searchParams.get("diag") === "1") {
+      // Safe self-check (never shows the key): is the key set, which models can it use, does one answer?
+      const out = { version: "2026-11-18c", keySet: !!env.GEMINI_API_KEY };
+      if (!env.GEMINI_API_KEY) return json(out, 200, origin);
+      let t = Date.now();
+      const list = await timedFetch("https://generativelanguage.googleapis.com/v1beta/models?pageSize=200", { headers: { "x-goog-api-key": env.GEMINI_API_KEY } }, 8000);
+      out.listStatus = list.status; out.listMs = Date.now() - t;
+      let body = {}; try { body = await list.json(); } catch (e) {}
+      if (!list.ok) out.listError = body.error && body.error.message;
+      out.flashModels = (body.models || []).filter(m => (m.supportedGenerationMethods || []).includes("generateContent") && /flash/i.test(m.name)).map(m => m.name.replace("models/", ""));
+      const ver = n => parseFloat((n.match(/gemini-(\d+(?:\.\d+)?)/) || [0, 0])[1]);
+      out.order = out.flashModels.filter(n => /^gemini-\d+(\.\d+)?-flash(-lite)?$/i.test(n)).sort((a, b) => (/lite/.test(b) - /lite/.test(a)) || ver(b) - ver(a));
+      const pick = url.searchParams.get("model") || out.order[0] || out.flashModels[0];
+      if (pick) {
+        t = Date.now();
+        const r = await timedFetch(`https://generativelanguage.googleapis.com/v1beta/models/${pick}:generateContent`, { method: "POST", headers: { "Content-Type": "application/json", "x-goog-api-key": env.GEMINI_API_KEY }, body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: "Say OK" }] }], generationConfig: { maxOutputTokens: 20 } }) }, 15000);
+        out.test = { model: pick, status: r.status, ms: Date.now() - t };
+        try { const d = await r.json(); out.test.reply = (d.candidates?.[0]?.content?.parts || []).map(p => p.text || "").join("").slice(0, 60); if (!r.ok) out.test.error = d.error && d.error.message; } catch (e) {}
+      }
+      return json(out, 200, origin);
+    }
     if (request.method !== "POST") return json({ error: "POST only" }, 405, origin);
     if (!ALLOWED_ORIGINS.includes(origin)) return json({ error: "Origin not allowed" }, 403, origin);
     if (!env.GEMINI_API_KEY) return json({ error: "Missing GEMINI_API_KEY secret" }, 500, origin);
@@ -97,20 +129,15 @@ export default {
       const opts = cachedThink !== undefined && cachedModel === model ? [cachedThink] : THINK;
       let res = null;
       for (const t of opts) {
-        const ctrl = new AbortController();
-        const timer = setTimeout(() => ctrl.abort(), 12000);
-        try {
-          res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
-            method: "POST", signal: ctrl.signal,
-            headers: { "Content-Type": "application/json", "x-goog-api-key": env.GEMINI_API_KEY },
-            body: JSON.stringify({
-              system_instruction: { parts: [{ text: SYSTEM }] },
-              contents,
-              generationConfig: Object.assign({ temperature: 0.3, maxOutputTokens: 600 }, t ? { thinkingConfig: t } : {})
-            })
-          });
-        } catch (e) { res = new Response("{}", { status: 504 }); }
-        clearTimeout(timer);
+        res = await timedFetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "x-goog-api-key": env.GEMINI_API_KEY },
+          body: JSON.stringify({
+            system_instruction: { parts: [{ text: SYSTEM }] },
+            contents,
+            generationConfig: Object.assign({ temperature: 0.3, maxOutputTokens: 600 }, t ? { thinkingConfig: t } : {})
+          })
+        }, 9000);
         if (res.status === 400 && t) continue;      // this thinking setting isn't supported by this model
         if (res.ok) cachedThink = t;
         return res;
@@ -121,22 +148,23 @@ export default {
     // (stable Flash first, then Flash-Lite, then preview), then the "latest" aliases.
     if (!modelList) {
       try {
-        const list = await fetch("https://generativelanguage.googleapis.com/v1beta/models?pageSize=200", { headers: { "x-goog-api-key": env.GEMINI_API_KEY } });
+        const list = await timedFetch("https://generativelanguage.googleapis.com/v1beta/models?pageSize=200", { headers: { "x-goog-api-key": env.GEMINI_API_KEY } }, 6000);
         if (list.ok) {
           modelList = ((await list.json()).models || [])
             .filter(m => (m.supportedGenerationMethods || []).includes("generateContent"))
             .map(m => m.name.replace(/^models\//, ""))
-            .filter(n => /flash/i.test(n) && !/(image|tts|audio|live|vision|embedding|thinking|exp|native)/i.test(n));
-          const rank = n => (/preview/.test(n) ? 2 : 0) + (/lite/.test(n) ? 1 : 0) + (/latest/.test(n) ? 3 : 0);
-          modelList.sort((a, b) => rank(a) - rank(b) || b.localeCompare(a, undefined, { numeric: true }));
+            .filter(n => /^gemini-\d+(\.\d+)?-flash(-lite)?$/i.test(n));   // numbered Flash / Flash-Lite text models only
+          // Flash-Lite first (fast and available on the free tier), newest version first; then full Flash.
+          const ver = n => parseFloat((n.match(/gemini-(\d+(?:\.\d+)?)/) || [0, 0])[1]);
+          modelList.sort((a, b) => (/lite/.test(b) - /lite/.test(a)) || ver(b) - ver(a));
         }
       } catch (e) { /* fall back to aliases */ }
     }
-    const candidates = [...new Set([env.GEMINI_MODEL, cachedModel, ...(modelList || []).slice(0, 5), ...PREFERRED].filter(Boolean))];
+    const candidates = [...new Set([env.GEMINI_MODEL, cachedModel, ...(modelList || []).slice(0, 6), ...PREFERRED].filter(Boolean))];
     const RETRYABLE = [404, 429, 500, 503, 504];
     let tried = [], r = null;
     for (const m of candidates) {
-      if (Date.now() - t0 > 22000) break;            // never keep a visitor waiting too long
+      if (Date.now() - t0 > 18000) break;            // never keep a visitor waiting too long
       tried.push(m); r = await call(m);
       if (r.ok) { cachedModel = m; break; }
       if (!RETRYABLE.includes(r.status)) break;      // e.g. bad key: no point trying other models
