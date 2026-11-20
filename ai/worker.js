@@ -12,6 +12,9 @@ const ALLOWED_ORIGINS = [
 // To force a specific model, add a plain-text variable GEMINI_MODEL in Cloudflare settings.
 const PREFERRED = ["gemini-flash-lite-latest", "gemini-flash-latest"];
 let cachedModel = null;
+let cachedStrong = null;
+const cooldown = {};
+const hits = new Map();
 let modelList = null;
 let cachedThink;
 
@@ -43,19 +46,36 @@ PROJECTS
 
 EDUCATION: Master's in Business Analytics (Global Supply Chain Analytics concentration), University of New Haven, Aug 2024–Jan 2026. B.E. Electronics & Communication Engineering, RNS Institute of Technology (VTU), Bengaluru, 2016–2021.
 CERTIFICATIONS: The AI Engineer Course 2026 (Udemy, Feb 2026); Data Analytics for Databricks (Databricks Academy, May 2025); The Ultimate MySQL Bootcamp (Udemy); Advanced Google Analytics; R (Programming Language); Learn About JSON with JavaScript.
-SKILLS: SQL (advanced), Python (Pandas, NumPy, scikit-learn, Prophet, XGBoost), R, JavaScript, HTML/CSS; MySQL, SQL Server, BigQuery, Redshift, MS Access; ETL/ELT, SSIS, SSAS, star/snowflake schema, data warehousing; Power BI (DAX, Power Query, gateways, admin), Looker/LookML, Looker Studio, Tableau, Domo, Qlik Sense, QuickSight, Excel/VBA; AWS (Redshift, S3, Lambda), GCP (BigQuery, Vertex AI, GA4), Azure AutoML, Databricks, Apache Spark; ML forecasting, classification, clustering, AutoML, BigQuery ML, generative AI, prompt engineering, Claude Code; RLS, RBAC, HIPAA, data governance, data validation; Agile.
+SKILLS USED IN HIS WORK OR PROJECTS (you may tie these to the roles/projects above): SQL (advanced); Python (pandas, NumPy, scikit-learn, Prophet, XGBoost, LightGBM); MySQL, BigQuery, Amazon Redshift, Google Analytics 4, MS Access; AWS Lambda; Power BI with DAX (NStarX); Looker/LookML (Populus); Looker Studio (capstone dashboard), Google Data Studio (IT intern); Tableau, Domo, Qlik Sense (benchmark), QuickSight and Looker (migration prototype); Azure AutoML, ARIMA/ARIMAX/SARIMAX, ElasticNet, Random Forest, K-Means, SVM; RLS, RBAC, HIPAA; Agile; HTML/CSS/JavaScript, Node.js, Bootstrap, GitHub Pages (campaign test pages); LabVIEW, NI-DAQmx.
+SKILLS LISTED ON HIS RESUME WITHOUT A SPECIFIC DESCRIBED PROJECT (say "listed among his skills", never attach them to a project): R, SQL Server, SSIS, SSAS, Power Query, star/snowflake schema design generally, Amazon S3, Google Cloud Vertex AI, BigQuery ML, Databricks (certified via Databricks Academy), Apache Spark, Excel/VBA, generative AI and prompt engineering, Claude Code, REST API integration.
 NOT IN HIS LISTED EXPERIENCE (say so honestly if asked): Snowflake (the warehouse), dbt, Airflow, Kafka, Scala, Java, Docker, Kubernetes, Terraform, deep learning frameworks, NLP.
 `;
 
-const SYSTEM = `You are the assistant on Jaypreet Singh's portfolio website, talking to recruiters and hiring managers.
-Rules:
-- For anything about Jaypreet, use ONLY the PROFILE below. Never invent employers, dates, numbers, tools, salary, visa status or personal details. If the profile doesn't say, reply that you don't have that detail and suggest emailing s.jaypreet@gmail.com.
-- Salary, visa/work authorization and interview scheduling: always direct them to s.jaypreet@gmail.com.
-- You may answer general data/analytics questions (e.g. "what is a star schema?") briefly from general knowledge, and connect them to Jaypreet's relevant work when it fits.
-- Keep a clear line between FACT and APPROACH. Only state something as what he did or does if it is in the PROFILE. For "how would he…" questions, describe a sound approach in conditional wording ("he would typically…", "a good approach is…"), then cite the real, related experience from the PROFILE as evidence. Never present a general best practice as something he has done.
-- Mention his email only when it's relevant (contact, salary, visa, scheduling, or a detail you don't have), not in every answer.
-- Refer to him in the third person ("he", "Jaypreet"). Be warm, concise and professional: at most about 120 words, plain sentences, use **bold** sparingly, no headings.
-- Politely decline unrelated requests (coding tasks, essays, etc.) and steer back to Jaypreet's experience.
+const SYSTEM = `You are the assistant on Jaypreet Singh's portfolio website. You talk to recruiters and hiring managers.
+
+FACTS
+- Anything you say Jaypreet did, built, used or achieved must come from the PROFILE below. Never invent employers, dates, numbers, tools, clients, salary, visa status or personal details.
+- Never attach a tool to a role or project unless the PROFILE ties them together. Tools in the "listed without a specific project" group are only "listed among his skills".
+- Team projects (both Port Authority projects, the SVM project): say "his team" for team results and describe his own part accurately.
+- If the PROFILE doesn't cover something, say you don't have that detail.
+
+APPROACH QUESTIONS ("how would he…", "what would he do…")
+- Give a sound, practical approach using conditional wording ("he would typically…", "a solid approach is…"). Then name one or two real, related things from the PROFILE as evidence. Never present general best practice as something he has done.
+
+FIT QUESTIONS (job titles, job descriptions, "is he a fit")
+- Be honest and useful: name the matching experience, name any gaps plainly, and point out the closest transferable experience (for example LookML semantic modeling and star schemas for dbt-style modeling; BigQuery/Redshift for Snowflake).
+
+GENERAL DATA QUESTIONS
+- Answer briefly from general knowledge, then connect to his relevant work in one sentence if there is a real link.
+
+OFF-TOPIC
+- Politely decline unrelated tasks (writing code, essays, personal topics) in one sentence and offer to talk about his experience.
+
+STYLE
+- Third person ("he", "Jaypreet"). Warm, confident, specific. 60–140 words.
+- Use short paragraphs, or 2–5 "- " bullets when listing. Use **bold** for at most two key phrases. No headings, no emojis.
+- Only mention s.jaypreet@gmail.com for contact, salary, visa or scheduling questions, or when you lack a detail. Do not end every answer with it.
+
 PROFILE:
 ${PROFILE}`;
 
@@ -87,7 +107,7 @@ export default {
     const url = new URL(request.url);
     if (request.method === "GET" && url.searchParams.get("diag") === "1") {
       // Safe self-check (never shows the key): is the key set, which models can it use, does one answer?
-      const out = { version: "2026-11-18c", keySet: !!env.GEMINI_API_KEY };
+      const out = { version: "2026-11-20c", keySet: !!env.GEMINI_API_KEY };
       if (!env.GEMINI_API_KEY) return json(out, 200, origin);
       let t = Date.now();
       const list = await timedFetch("https://generativelanguage.googleapis.com/v1beta/models?pageSize=200", { headers: { "x-goog-api-key": env.GEMINI_API_KEY } }, 8000);
@@ -96,19 +116,32 @@ export default {
       if (!list.ok) out.listError = body.error && body.error.message;
       out.flashModels = (body.models || []).filter(m => (m.supportedGenerationMethods || []).includes("generateContent") && /flash/i.test(m.name)).map(m => m.name.replace("models/", ""));
       const ver = n => parseFloat((n.match(/gemini-(\d+(?:\.\d+)?)/) || [0, 0])[1]);
-      out.order = out.flashModels.filter(n => /^gemini-\d+(\.\d+)?-flash(-lite)?$/i.test(n)).sort((a, b) => (/lite/.test(b) - /lite/.test(a)) || ver(b) - ver(a));
-      const pick = url.searchParams.get("model") || out.order[0] || out.flashModels[0];
+      out.order = out.flashModels.filter(n => /^gemini-\d+(\.\d+)?-flash(-lite)?(-preview)?$/i.test(n)).sort((a, b) => (/lite/.test(a) - /lite/.test(b)) || ver(b) - ver(a));
+      out.cooldown = Object.keys(cooldown).filter(k => cooldown[k] > Date.now());
+      const pick = url.searchParams.get("model") || out.order.find(n => /lite/.test(n)) || out.flashModels[0];
       if (pick) {
         t = Date.now();
         const r = await timedFetch(`https://generativelanguage.googleapis.com/v1beta/models/${pick}:generateContent`, { method: "POST", headers: { "Content-Type": "application/json", "x-goog-api-key": env.GEMINI_API_KEY }, body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: "Say OK" }] }], generationConfig: { maxOutputTokens: 20 } }) }, 15000);
         out.test = { model: pick, status: r.status, ms: Date.now() - t };
         try { const d = await r.json(); out.test.reply = (d.candidates?.[0]?.content?.parts || []).map(p => p.text || "").join("").slice(0, 60); if (!r.ok) out.test.error = d.error && d.error.message; } catch (e) {}
       }
+      const strongName = out.order.find(n => !/lite/.test(n));
+      if (strongName) {
+        t = Date.now();
+        const r2 = await timedFetch(`https://generativelanguage.googleapis.com/v1beta/models/${strongName}:generateContent`, { method: "POST", headers: { "Content-Type": "application/json", "x-goog-api-key": env.GEMINI_API_KEY }, body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: "Say OK" }] }], generationConfig: { maxOutputTokens: 200, thinkingConfig: { thinkingLevel: "minimal" } } }) }, 15000);
+        out.strongTest = { model: strongName, status: r2.status, ms: Date.now() - t };
+      }
       return json(out, 200, origin);
     }
     if (request.method !== "POST") return json({ error: "POST only" }, 405, origin);
     if (!ALLOWED_ORIGINS.includes(origin)) return json({ error: "Origin not allowed" }, 403, origin);
     if (!env.GEMINI_API_KEY) return json({ error: "Missing GEMINI_API_KEY secret" }, 500, origin);
+
+    // Basic abuse protection: at most 20 questions per minute per visitor.
+    const ip = request.headers.get("CF-Connecting-IP") || "?";
+    const now = Date.now(), w = (hits.get(ip) || []).filter(t => now - t < 60000);
+    if (w.length >= 20) return json({ error: "Too many questions, please wait a minute" }, 429, origin);
+    w.push(now); hits.set(ip, w); if (hits.size > 5000) hits.clear();
 
     let data;
     try { data = await request.json(); } catch { return json({ error: "Bad JSON" }, 400, origin); }
@@ -135,7 +168,7 @@ export default {
           body: JSON.stringify({
             system_instruction: { parts: [{ text: SYSTEM }] },
             contents,
-            generationConfig: Object.assign({ temperature: 0.3, maxOutputTokens: 600 }, t ? { thinkingConfig: t } : {})
+            generationConfig: Object.assign({ temperature: 0.2, maxOutputTokens: 500 }, t ? { thinkingConfig: t } : {})
           })
         }, 9000);
         if (res.status === 400 && t) continue;      // this thinking setting isn't supported by this model
@@ -153,27 +186,51 @@ export default {
           modelList = ((await list.json()).models || [])
             .filter(m => (m.supportedGenerationMethods || []).includes("generateContent"))
             .map(m => m.name.replace(/^models\//, ""))
-            .filter(n => /^gemini-\d+(\.\d+)?-flash(-lite)?$/i.test(n));   // numbered Flash / Flash-Lite text models only
+            .filter(n => /^gemini-\d+(\.\d+)?-flash(-lite)?(-preview)?$/i.test(n));   // numbered Flash / Flash-Lite text models (incl. previews)
           // Flash-Lite first (fast and available on the free tier), newest version first; then full Flash.
           const ver = n => parseFloat((n.match(/gemini-(\d+(?:\.\d+)?)/) || [0, 0])[1]);
           modelList.sort((a, b) => (/lite/.test(b) - /lite/.test(a)) || ver(b) - ver(a));
         }
       } catch (e) { /* fall back to aliases */ }
     }
-    const candidates = [...new Set([env.GEMINI_MODEL, cachedModel, ...(modelList || []).slice(0, 6), ...PREFERRED].filter(Boolean))];
-    const RETRYABLE = [404, 429, 500, 503, 504];
-    let tried = [], r = null;
-    for (const m of candidates) {
-      if (Date.now() - t0 > 18000) break;            // never keep a visitor waiting too long
-      tried.push(m); r = await call(m);
-      if (r.ok) { cachedModel = m; break; }
-      if (!RETRYABLE.includes(r.status)) break;      // e.g. bad key: no point trying other models
-      if (m === cachedModel) cachedModel = null;
-    }
-    if (!r || !r.ok) return json({ error: "AI service error", status: r ? r.status : 0, tried, ms: Date.now() - t0 }, 502, origin);
-    const out = await r.json();
-    const answer = (out.candidates?.[0]?.content?.parts || []).map(p => p.text || "").join("").trim();
-    if (!answer) return json({ error: "No answer" }, 502, origin);
-    return json({ answer, model: cachedModel, ms: Date.now() - t0 }, 200, origin);
+    // Best free models first: full Flash (smarter) raced against Flash-Lite (fast, reliable).
+    // Up to 3 full-Flash models are asked at once; the first good full-Flash answer within ~6.5 s wins,
+    // otherwise the Flash-Lite answer is used. Busy models are skipped for 5 minutes.
+    const ver = n => parseFloat((n.match(/gemini-(\d+(?:\.\d+)?)/) || [0, 0])[1]);
+    const textModel = n => /^gemini-\d+(\.\d+)?-flash(-lite)?(-preview)?$/i.test(n);
+    const all = [...new Set([env.GEMINI_MODEL, ...(modelList || []), ...PREFERRED].filter(Boolean))];
+    const strongAll = all.filter(n => textModel(n) && !/lite/.test(n) && !(cooldown[n] > Date.now())).sort((a, b) => ver(b) - ver(a));
+    // Once a full-Flash model has worked, use just that one; otherwise test all of them at once.
+    const strong = cachedStrong && !(cooldown[cachedStrong] > Date.now()) ? [cachedStrong] : strongAll.slice(0, 8);
+    const fast = [...new Set([cachedModel, ...all.filter(n => /lite/.test(n) && (textModel(n) || /latest/.test(n))).sort((a, b) => ver(b) - ver(a))].filter(Boolean))]
+      .filter(n => /lite/.test(n));
+    const tried = [];
+    const attempt = async (m) => {
+      tried.push(m);
+      const res = await call(m);
+      let text = "";
+      if (res.ok) { try { const d = await res.json(); text = (d.candidates?.[0]?.content?.parts || []).map(p => p.text || "").join("").trim(); } catch (e) {} }
+      if ([429, 503, 504].includes(res.status) || (res.ok && !text)) cooldown[m] = Date.now() + 5 * 60 * 1000;
+      if (res.status === 404) cooldown[m] = Date.now() + 24 * 60 * 60 * 1000;     // retired model: skip for a day
+      if (m === cachedStrong && !text) cachedStrong = null;
+      return { m, status: res.status, text };
+    };
+    const firstText = async (list, max) => {
+      let last = null;
+      for (const m of list.slice(0, max)) { last = await attempt(m); if (last.text) return last; if (![404, 429, 500, 503, 504, 200].includes(last.status)) break; }
+      return last;
+    };
+    const fastP = firstText(fast, 3);
+    const strongP = strong.length ? new Promise(resolve => {
+      let pending = strong.length;
+      strong.forEach(m => attempt(m).then(x => { if (x.text) resolve(x); else if (--pending === 0) resolve(null); }));
+      setTimeout(() => resolve(null), 6500);
+    }) : Promise.resolve(null);
+    let pick = await strongP;
+    if (pick) cachedStrong = pick.m;
+    else pick = await fastP;
+    if (pick && pick.text && /lite/.test(pick.m)) cachedModel = pick.m;
+    if (!pick || !pick.text) return json({ error: "AI service error", status: pick ? pick.status : 0, tried, ms: Date.now() - t0 }, 502, origin);
+    return json({ answer: pick.text, model: pick.m, ms: Date.now() - t0 }, 200, origin);
   }
 };

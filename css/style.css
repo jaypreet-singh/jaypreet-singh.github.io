@@ -533,3 +533,6 @@ dialog.cmdk::backdrop { background: rgba(3, 7, 15, .55); backdrop-filter: blur(4
   a[href^="http"]:not(.btn):not(.link-btn)::after { content: ""; }
   .view.active { display: block; }
 }
+.msg p { margin: 0 0 6px; } .msg p:last-child { margin-bottom: 0; }
+.msg code { font-family: var(--font-mono); font-size: 12.5px; padding: 1px 5px; border-radius: 5px; background: var(--chip); color: var(--chip-text); }
+.chat-form input:disabled { opacity: .6; }

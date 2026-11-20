@@ -233,7 +233,17 @@ function addMsg(who, html) {
    Portfolio questions are answered instantly from the built-in answers; anything else goes to the AI. */
 var chatHistory = [];
 function fmtAI(text) {
-  return escH(text).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/\n{2,}/g, "<br><br>").replace(/\n[-•] /g, "<br>• ").replace(/\n/g, "<br>");
+  // Light Markdown: paragraphs, "- " / "* " / "1." lists, **bold**, `code`.
+  var inline = function (t) { return escH(t).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/`([^`]+)`/g, "<code>$1</code>"); };
+  var out = [], list = null;
+  text.replace(/\r/g, "").split("\n").forEach(function (line) {
+    var m = line.match(/^\s*(?:[-*•]|\d+[.)])\s+(.*)$/);
+    if (m) { if (!list) { list = []; } list.push("<li>" + inline(m[1]) + "</li>"); return; }
+    if (list) { out.push("<ul>" + list.join("") + "</ul>"); list = null; }
+    if (line.trim()) out.push("<p>" + inline(line.trim()) + "</p>");
+  });
+  if (list) out.push("<ul>" + list.join("") + "</ul>");
+  return out.join("");
 }
 function askAI(q) {
   var ctrl = typeof AbortController !== "undefined" ? new AbortController() : null;
@@ -244,12 +254,14 @@ function askAI(q) {
   }).then(function (r) { clearTimeout(timer); if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
     .then(function (d) { if (!d || !d.answer) throw new Error("empty"); return d.answer; });
 }
+var busy = false;
 function ask(q) {
-  q = q.trim(); if (!q) return;
+  q = q.trim(); if (!q || busy) return;
+  busy = true; chatInput.disabled = true;
   addMsg("me", escH(q)); chatInput.value = "";
   var r = answer(q);
   var typing = document.createElement("div"); typing.className = "msg bot typing"; typing.innerHTML = "<i></i><i></i><i></i>"; chatLog.appendChild(typing); chatLog.scrollTop = chatLog.scrollHeight;
-  function done(html) { typing.remove(); addMsg("bot", html); }
+  function done(html) { typing.remove(); addMsg("bot", html); busy = false; chatInput.disabled = false; chatInput.focus(); }
   // Open-ended questions get a real AI answer; quick factual lookups stay instant.
   var openEnded = /\b(how|why|would|could|should|explain|describe|compare|comparison|difference|approach|handle|what is|what are|what's|walk me|example|examples|best way|tell me more|elaborate|summari[sz]e|think|advice|suggest|improve|design|optimi[sz]e|troubleshoot|fix|vs|versus)\b/i.test(q);
   var useAI = SITE.aiEndpoint && (r.conf === "none" || r.conf === "weak" || openEnded);
