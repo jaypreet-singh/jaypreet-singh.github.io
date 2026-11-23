@@ -20,6 +20,7 @@ let cachedThink;
 
 const PROFILE = `
 NAME: Jaypreet Singh. Data Engineer & BI Analyst. New York City area; open to Data Engineer and BI Analyst roles anywhere in the USA (on-site, hybrid or remote).
+STARTUPS: Open to startup collaboration in the US. If a founder already has an idea, he can step in as the technical partner to build the product, data and tech; he is also open to co-founding a new tech product from scratch, or joining early as a founding engineer or advisor on tech and data strategy. Open to any industry and any stage where technology is central. Founders can pitch via the Contact form or s.jaypreet@gmail.com.
 CONTACT: s.jaypreet@gmail.com · linkedin.com/in/jaypreet-singh · github.com/jaypreet-singh · portfolio: jaypreet-singh.github.io
 SUMMARY: 5+ years building ETL/ELT pipelines, data models and dashboards across on-prem and cloud; served 30+ enterprise clients; HIPAA-compliant analytics; ML forecasting.
 
@@ -107,7 +108,7 @@ export default {
     const url = new URL(request.url);
     if (request.method === "GET" && url.searchParams.get("diag") === "1") {
       // Safe self-check (never shows the key): is the key set, which models can it use, does one answer?
-      const out = { version: "2026-11-20c", keySet: !!env.GEMINI_API_KEY };
+      const out = { version: "2026-11-22d", keySet: !!env.GEMINI_API_KEY };
       if (!env.GEMINI_API_KEY) return json(out, 200, origin);
       let t = Date.now();
       const list = await timedFetch("https://generativelanguage.googleapis.com/v1beta/models?pageSize=200", { headers: { "x-goog-api-key": env.GEMINI_API_KEY } }, 8000);

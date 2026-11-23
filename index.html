@@ -10,11 +10,13 @@
 <meta property="og:type" content="website">
 <meta property="og:image" content="assets/og-image.jpg">
 <meta name="theme-color" content="#070B14">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 <link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=60d630ad">
+<link rel="stylesheet" href="css/style.css?v=d4e5ac04">
 <script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
 </head>
 <body>
@@ -124,8 +126,23 @@
     <div class="grid-3 tools-strip">
       <div class="card card-hover try"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg></span><h3>Check my fit for your role</h3><p class="muted">Paste a job description and get a match score, with proof from my projects for every skill.</p><button class="btn btn-primary" type="button" data-goto="skills|fit">Open job-match checker <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 12h16M14 6l6 6-6 6"/></svg></button></div>
       <div class="card card-hover try"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3l1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2z"/></svg></span><h3>Ask my portfolio assistant</h3><p class="muted">Ask about my experience, tools or availability and get an instant answer from my portfolio.</p><button class="btn btn-ghost" type="button" data-ask>Ask a question <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 12h16M14 6l6 6-6 6"/></svg></button></div>
-      <div class="card card-hover try"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg></span><h3>Explore live project insights</h3><p class="muted">An interactive dashboard of my Port Authority of NY &amp; NJ findings: congestion pricing, forecasts and violations.</p><button class="btn btn-ghost" type="button" data-goto="projects|pa-dash">Open the dashboard <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 12h16M14 6l6 6-6 6"/></svg></button></div>
+      <div class="card card-hover try"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg></span><h3>Pitch me a startup idea</h3><p class="muted">Building something in data, AI or analytics in the US? I'm open to co-founding or joining early as a technical partner.</p><button class="btn btn-ghost" type="button" data-goto="home|startup">See how I can help <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 12h16M14 6l6 6-6 6"/></svg></button></div>
     </div>
+
+    <section class="startup gap-top" id="startup" aria-labelledby="startup-title">
+      <div class="startup-glow" aria-hidden="true"></div>
+      <span class="startup-badge"><i aria-hidden="true"></i>Open to startup collaboration · US</span>
+      <h2 id="startup-title">Have an idea? <span class="grad">Let's build it together.</span></h2>
+      <p class="startup-lede">Whether you already have an idea and need a technical partner to step in, or you're looking for a co-founder to start building a new tech product from scratch, I'd love to talk.</p>
+      <div class="startup-fields">
+        <span class="sf-label">How I can join</span>
+        <ul class="sf-list"><li><button type="button" data-pitch="Your idea, my build"><b>Your idea, my build</b><span>You have the idea. I step in to build the product, data and tech behind it.</span></button></li><li><button type="button" data-pitch="Co-founder from day one"><b>Co-founder from day one</b><span>Start something new together, from the first sketch to launch.</span></button></li><li><button type="button" data-pitch="Early team or advisor"><b>Early team or advisor</b><span>Join as a founding engineer, or guide the tech and data strategy.</span></button></li></ul>
+      </div>
+      <div class="startup-cta">
+        <button class="btn btn-primary" type="button" data-pitch=""><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg> Pitch me your idea</button>
+        <span class="startup-note">Any stage, any industry: if it's built on technology, I'm interested.</span>
+      </div>
+    </section>
 
     <h2 class="section-title gap-top">Featured work</h2>
     <div class="proj-grid" id="home-projects"></div>
@@ -292,18 +309,6 @@
       <button class="filter" type="button" data-f="hw" aria-pressed="false">Engineering &amp; IoT</button>
     </div>
     <div class="proj-grid" id="project-grid"></div>
-    <div class="card pa-dash gap-top" id="pa-dash">
-      <div class="pa-head"><span class="logo" title="Port Authority of NY & NJ"><img src="assets/logos/port-authority.png" alt="Port Authority of NY & NJ logo"></span><div><span class="kicker">Interactive insights</span><h2>Port Authority of NY &amp; NJ, in numbers</h2><p class="muted">Key findings from my two Port Authority projects. Pick a view; every figure comes from the final project reports.</p></div></div>
-      <div class="pa-tabs" role="tablist" aria-label="Choose a view">
-        <button type="button" role="tab" data-view-key="pricing">2025 congestion pricing</button>
-        <button type="button" role="tab" data-view-key="bridges">Bridge forecast 2025–30</button>
-        <button type="button" role="tab" data-view-key="bus">Bus passengers 2025–30</button>
-        <button type="button" role="tab" data-view-key="violations">Toll violations</button>
-        <button type="button" role="tab" data-view-key="seasons">Seasonality</button>
-      </div>
-      <div id="pa-chart" class="pa-chart" role="tabpanel" aria-live="polite"></div>
-    </div>
-
     <div class="card cta-band gap-top">
       <div><h2>More on GitHub</h2><p>Code for the Port Authority projects, Power BI work, the SVM classifier and LabVIEW test procedure.</p></div>
       <a class="btn btn-primary" href="https://github.com/jaypreet-singh" target="_blank" rel="noopener"><svg fill="currentColor" aria-hidden="true" role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg> github.com/jaypreet-singh</a>
@@ -323,7 +328,7 @@
       <div class="fit-head"><div><span class="kicker">Job-match checker</span><h2>Check my fit for your role</h2><p class="muted">Paste a job description. The checker finds the tools and skills it asks for, shows which ones I bring with proof from my work, and which ones I don't have yet. It runs in your browser; nothing is sent anywhere.</p></div></div>
       <label class="sr-only" for="fit-input">Job description</label>
       <textarea id="fit-input" placeholder="Paste the job description here…"></textarea>
-      <div class="btns"><button class="btn btn-primary" type="button" id="fit-run">Check my fit</button><button class="btn btn-ghost" type="button" id="fit-sample">Try a sample job</button><button class="btn btn-ghost" type="button" id="fit-clear">Clear</button></div>
+      <div class="btns"><button class="btn btn-primary" type="button" id="fit-run">Check my fit</button><button class="btn btn-ghost" type="button" id="fit-clear">Clear</button></div>
       <div id="fit-result" aria-live="polite"></div>
     </div>
 
@@ -344,7 +349,7 @@
   <div class="wrap page-head">
     <span class="kicker">Contact</span>
     <h1>Let's talk about <span class="grad">your data</span></h1>
-    <p>Hiring for a data engineering or analytics role, or have a project in mind? Email is the fastest way to reach me.</p>
+    <p>Hiring for a data role, or building a startup and looking for a data &amp; AI partner? Email is the fastest way to reach me.</p>
   </div>
   <div class="wrap section">
     <div class="contact-grid">
@@ -411,6 +416,6 @@
 
 <script src="js/projects.js?v=86e68d90"></script>
 <script src="js/main.js?v=bc78e1b8"></script>
-<script src="js/features.js?v=f6c3e135"></script>
+<script src="js/features.js?v=d8be497c"></script>
 </body>
 </html>

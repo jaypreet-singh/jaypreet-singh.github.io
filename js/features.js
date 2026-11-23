@@ -1,6 +1,6 @@
 /* =========================================================
    Interactive features: Ask-me assistant, Job-match checker,
-   Port Authority insights dashboard, Cmd+K search.
+   Startup pitch buttons, Cmd+K search.
    Everything runs in the browser: free, no API key, no server.
    ========================================================= */
 
@@ -102,10 +102,6 @@ document.addEventListener("click", function (e) {
 (function () {
   var box = document.getElementById("fit-input"), out = document.getElementById("fit-result");
   if (!box) return;
-  document.getElementById("fit-sample").addEventListener("click", function () {
-    box.value = "We're hiring a Data Engineer to build and maintain ETL pipelines in Python and SQL, model data in a cloud warehouse (BigQuery, Redshift or Snowflake), orchestrate jobs with Airflow, and deliver dashboards in Power BI or Tableau. Experience with AWS, data governance, dbt and machine learning forecasting is a plus. Strong stakeholder communication in an Agile team required.";
-    run();
-  });
   document.getElementById("fit-run").addEventListener("click", run);
   document.getElementById("fit-clear").addEventListener("click", function () { box.value = ""; out.innerHTML = ""; box.focus(); });
   function run() {
@@ -128,42 +124,22 @@ document.addEventListener("click", function (e) {
 })();
 
 /* =========================================================
-   2. PORT AUTHORITY INSIGHTS (figures from the final project reports)
+   2. STARTUP PITCH: opens Contact with the message started for them
    ========================================================= */
-(function () {
-  var root = document.getElementById("pa-dash");
-  if (!root) return;
-  var VIEWS = {
-    pricing: { title: "Total bridge & tunnel traffic", unit: "M vehicles", fmt: function (v) { return v.toFixed(1) + "M"; },
-      rows: [["2024", 195.7], ["2025 (after congestion pricing)", 170.9]],
-      note: "Traffic fell by 24.8M vehicles (−12.7%) after 2025 congestion pricing. Drivers shifted from Lincoln, Holland and GWB Lower to cheaper crossings like Goethals and Outerbridge.", src: "pa-capstone" },
-    bridges: { title: "Forecast vehicles 2025–2030 by crossing", unit: "M vehicles", fmt: function (v) { return v.toFixed(1) + "M"; },
-      rows: [["George Washington Bridge", 403.8], ["Lincoln Tunnel", 131.3], ["Holland Tunnel", 81.8]],
-      note: "GWB stays the busiest crossing, peaking in 2029; traffic is highest May–August across all bridges.", src: "pa-forecast" },
-    bus: { title: "Forecast bus passengers 2025–2030", unit: "M passengers", fmt: function (v) { return "~" + v + "M"; },
-      rows: [["Midtown Bus Terminal", 180], ["GWB Bus Station", 8]],
-      note: "About 188M passengers in total. Midtown tops 2.9M a month in July and August, which is why it needs the most staging capacity.", src: "pa-forecast" },
-    violations: { title: "Toll violations by month, 2025", unit: "violations", fmt: function (v) { return v.toLocaleString("en-US"); },
-      rows: [["May (peak month)", 390444], ["January (lowest month)", 308980]],
-      note: "5.7M violations in 2025, with monthly violation rates of 3.5%–4.7%, concentrated at GWB Upper, GWB Lower and Lincoln. The violation rate is forecast to rise from 4.16% to 5.52% by 2030.", src: "pa-capstone" },
-    seasons: { title: "Busiest vs slowest month", unit: "M vehicles", fmt: function (v) { return v.toFixed(1) + "M"; },
-      rows: [["July (busiest)", 13.9], ["February (slowest)", 12.8]],
-      note: "Thursdays and Fridays are the busiest days of the week; traffic dips on major holidays like Thanksgiving and Christmas.", src: "pa-capstone" }
-  };
-  var tabs = root.querySelectorAll("[data-view-key]"), chart = document.getElementById("pa-chart");
-  function render(k) {
-    var v = VIEWS[k], max = Math.max.apply(null, v.rows.map(function (r) { return r[1]; }));
-    tabs.forEach(function (t) { t.setAttribute("aria-selected", t.getAttribute("data-view-key") === k ? "true" : "false"); });
-    chart.innerHTML = '<h3 class="pa-title">' + v.title + ' <span>(' + v.unit + ')</span></h3><div class="bars" role="list">' +
-      v.rows.map(function (r, i) {
-        return '<div class="bar-row" role="listitem"><span class="bar-label">' + r[0] + '</span><div class="bar-track"><div class="bar-fill' + (i === 0 ? " hi" : "") +
-          '" style="width:0" data-w="' + (r[1] / max * 100).toFixed(1) + '"></div></div><span class="bar-val">' + v.fmt(r[1]) + "</span></div>";
-      }).join("") + '</div><p class="pa-note">' + v.note + '</p><button type="button" class="ev-link" data-open="' + v.src + '">Read the full case study →</button>';
-    requestAnimationFrame(function () { chart.querySelectorAll(".bar-fill").forEach(function (b) { b.style.width = b.getAttribute("data-w") + "%"; }); });
-  }
-  tabs.forEach(function (t) { t.addEventListener("click", function () { render(t.getAttribute("data-view-key")); }); });
-  render("pricing");
-})();
+document.addEventListener("click", function (e) {
+  var b = e.target.closest("[data-pitch]");
+  if (!b) return;
+  var idea = b.getAttribute("data-pitch");
+  goTo("contact");
+  setTimeout(function () {
+    var m = document.getElementById("cf-message");
+    if (m) m.value = idea
+      ? "Interested in: " + idea + "\n\nThe idea: \nStage (idea / prototype / customers): \nWhat you're looking for in a partner: "
+      : "Startup idea: \n\nStage (idea / prototype / MVP): \nHow you'd like to work together: ";
+    var n = document.getElementById("cf-name"); if (n) n.focus();
+    toast(idea ? "Add a few details about your idea and send it." : "Tell me about your idea. It goes straight to my inbox.");
+  }, 200);
+});
 
 /* =========================================================
    3. ASK-ME ASSISTANT (searches portfolio facts; never invents)
@@ -176,7 +152,7 @@ var KB = [
   { k: ["port authority", "panynj", "traffic", "toll", "congestion", "bridge", "tunnel", "bus", "passenger", "capstone"], a: "He did two Port Authority of NY &amp; NJ projects: a capstone showing traffic fell <b>12.7%</b> after 2025 congestion pricing (195.7M → 170.9M), with an ensemble model at R² 0.994, and bus terminal forecasts of about <b>188M</b> passengers for 2025–2030, with separate forecasts for 14 bus carriers.", l: ["case:pa-capstone", "Capstone case study"] },
   { k: ["education", "degree", "degrees", "master", "university", "college", "study", "studied", "bachelor", "graduate", "graduated", "school", "qualification", "qualifications"], a: "<b>Master's in Business Analytics</b> (Global Supply Chain Analytics concentration), University of New Haven, Aug 2024–Jan 2026. <b>B.E. in Electronics &amp; Communication Engineering</b>, RNS Institute of Technology, Bengaluru, 2016–2021.", l: ["#about", "Education"] },
   { k: ["certification", "certifications", "certificate", "certified", "course", "courses", "bootcamp"], a: "Certifications include <b>The AI Engineer Course 2026</b> (Udemy), <b>Data Analytics for Databricks</b> (Databricks Academy), The Ultimate MySQL Bootcamp, Advanced Google Analytics, R, and JSON with JavaScript.", l: ["#about", "Certifications"] },
-  { k: ["location", "located", "live", "lives", "relocate", "relocation", "willing", "remote", "hybrid", "onsite", "on-site", "move", "based", "available", "availability", "open to"], a: "He's based in the <b>New York City area</b> and open to Data Engineer and BI Analyst roles <b>anywhere in the USA</b>: on-site, hybrid or remote.", l: ["#contact", "Contact him"] },
+  { k: ["location", "located", "live", "lives", "relocate", "relocation", "willing", "remote", "hybrid", "onsite", "on-site", "move", "based", "available", "availability"], a: "He's based in the <b>New York City area</b> and open to Data Engineer and BI Analyst roles <b>anywhere in the USA</b>: on-site, hybrid or remote.", l: ["#contact", "Contact him"] },
   { k: ["visa", "sponsorship", "sponsor", "work authorization", "authorization", "authorized", "authorised", "eligible", "eligibility", "citizen", "green card", "work permit", "opt", "h1b", "h-1b"], a: "Work-authorization details are best confirmed with Jaypreet directly. Email <b>s.jaypreet@gmail.com</b> and he'll reply quickly.", l: ["#contact", "Contact him"] },
   { k: ["salary", "compensation", "pay", "rate", "expected"], a: "Compensation is best discussed directly. Reach him at <b>s.jaypreet@gmail.com</b>.", l: ["#contact", "Contact him"] },
   { k: ["contact", "email", "reach", "hire", "interview", "call", "phone", "connect", "message"], a: "Email <b>s.jaypreet@gmail.com</b>, connect on LinkedIn (linkedin.com/in/jaypreet-singh), or use the message form on the Contact page.", l: ["#contact", "Contact page"] },
@@ -189,6 +165,7 @@ var KB = [
   { k: ["campaign", "campaigns", "marketing", "doubleverify", "crossix", "iqvia", "test pages", "creative"], a: "At Populus he set up digital health campaign creatives, integrated <b>DoubleVerify, Crossix and IQVIA</b>, and built <b>100+ test pages</b> for client QA.", l: ["case:campaign-ops", "Campaign case study"] },
   { k: ["github", "code", "repo", "repository", "projects", "portfolio", "work samples"], a: "Code is on GitHub at <b>github.com/jaypreet-singh</b>, including both Port Authority projects, Power BI work, the SVM classifier and the LabVIEW test procedure.", l: ["#projects", "All projects"] },
   { k: ["strength", "strengths", "why hire", "why should", "unique", "best", "good at", "stand out"], a: "He covers the whole path from <b>raw source to decision</b>: resilient pipelines, clean star-schema models, governed dashboards and ML forecasts, with measurable results like $94K in flagged spend and 100% validated pipelines.", l: ["#projects", "See the work"] },
+  { k: ["startup", "startups", "co-founder", "cofounder", "co founder", "co-founding", "cofounding", "co-found", "entrepreneur", "founder", "founding", "collaborate", "collaboration", "partner", "partnership", "idea", "ideas", "venture", "build together", "side project", "advisor", "product idea", "product ideas", "copilot", "mvp", "prototype", "with me", "together", "join us", "our team"], a: "Yes! Jaypreet is <b>open to startup collaboration in the US</b>. If you already have an idea, he can step in as the technical partner to build it; he's also open to <b>co-founding</b> a new tech product from scratch, or joining early as a <b>founding engineer</b> or <b>advisor</b>. Any industry, any stage. Pitch your idea through the Contact form or at <b>s.jaypreet@gmail.com</b>.", l: ["#home|startup", "See startup collaboration"] },
   { k: ["fit", "match", "job description", "jd", "suitable", "qualified", "requirements"], a: "Paste your job description into the <b>Job-match checker</b> on the Skills page. It scores the fit and links proof for each skill.", l: ["#skills|fit", "Open job-match checker"] },
   { k: ["breast", "cancer", "svm", "medical"], a: "His B.E. final-year project built a <b>Support Vector Machine</b> that classifies breast cells as benign or malignant from 30 features, at 98% accuracy.", l: ["case:breast-cancer", "Case study"] },
   { k: ["labview", "vi solutions", "tata", "iot", "hardware", "electronics", "sensor"], a: "Before data, he interned at <b>VI Solutions</b> (automated hardware testing in LabVIEW) and <b>Tata Steel</b> (real-time water-quality sensors streaming to the cloud).", l: ["#experience", "Experience"] }
@@ -298,7 +275,7 @@ function closeChat() { chat.classList.remove("open"); document.getElementById("c
     ["Home", "Page", function () { location.hash = "home"; }], ["About", "Page", function () { location.hash = "about"; }],
     ["Experience", "Page", function () { location.hash = "experience"; }], ["Projects", "Page", function () { location.hash = "projects"; }],
     ["Skills", "Page", function () { location.hash = "skills"; }], ["Contact", "Page", function () { location.hash = "contact"; }],
-    ["Job-match checker", "Tool", function () { goTo("skills", "fit"); }], ["Port Authority insights dashboard", "Tool", function () { goTo("projects", "pa-dash"); }],
+    ["Job-match checker", "Tool", function () { goTo("skills", "fit"); }], ["Startup collaboration", "Section", function () { goTo("home", "startup"); }],
     ["Ask the assistant", "Tool", function () { openChat(); }],
     ["Data Engineer résumé (PDF)", "Download", function () { window.open("assets/Jaypreet_Singh_Data_Engineer_Resume.pdf", "_blank", "noopener"); }],
     ["Data Analyst résumé (PDF)", "Download", function () { window.open("assets/Jaypreet_Singh_Data_Analyst_Resume.pdf", "_blank", "noopener"); }],
